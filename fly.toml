@@ -1,0 +1,30 @@
+# fly.toml — Woodchuckers CRM. Same operating rules as the site:
+# SQLite is single-writer on one volume and sessions/rate limits are
+# in-process — run exactly ONE machine. Do not scale horizontally.
+
+app = "woodchuckers-crm"
+primary_region = "dfw"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  APP_BASE_URL = "https://woodchuckers-crm.fly.dev"
+  DATABASE_URL = "/data/crm.db"
+
+[[mounts]]
+  source = "data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  # One machine, always warm: leads must never hit a cold start, and the
+  # single-writer SQLite + in-process state assume exactly one process.
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

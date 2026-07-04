@@ -1,0 +1,436 @@
+/* globals.css — Woodchuckers CRM design system.
+ *
+ * Built for one context: a climber's phone, outdoors, often in sunlight,
+ * operated with a thumb. So: light high-contrast canvas (sunlight-readable),
+ * big tap targets, and every number set in a tabular mono face — the pipeline
+ * reads like a ledger, because it is one.
+ *
+ * Tokens: spruce ink on mist, chainsaw-orange for the one action that matters,
+ * pine green strictly for money-in-hand (paid).
+ */
+
+:root {
+  --canvas: #f3f4f0; /* mist */
+  --card: #ffffff;
+  --ink: #18211b; /* spruce ink */
+  --muted: #5b675e;
+  --line: #d9ded6;
+  --accent: #d9480f; /* chainsaw orange */
+  --accent-ink: #ffffff;
+  --paid: #2f6b43; /* pine — money in hand only */
+  --lost: #8a8f88;
+  --mono:
+    ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  --sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.shell {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 14px calc(24px + env(safe-area-inset-bottom));
+}
+
+/* ---- header: the wordmark is the only display-type moment ---- */
+.topbar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 14px 2px 10px;
+}
+
+.wordmark {
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 15px;
+}
+
+.wordmark em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+.topbar form button {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  padding: 4px;
+  cursor: pointer;
+}
+
+/* ---- stage rail: chips strung on one hairline, like clips on a rope ---- */
+.rail {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px 2px 12px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.rail::-webkit-scrollbar {
+  display: none;
+}
+
+.rail::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  background: var(--line);
+}
+
+.chip {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 8px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
+  min-height: 40px;
+}
+
+.chip .n {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.chip.active {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--canvas);
+}
+
+.chip.active .n {
+  color: var(--canvas);
+}
+
+/* ---- stage summary line ---- */
+.stage-sum {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 2px 2px 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.stage-sum .cents {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* ---- lead cards ---- */
+.cards {
+  display: grid;
+  gap: 10px;
+}
+
+.card {
+  display: block;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.card[data-stage='paid'] {
+  border-left-color: var(--paid);
+}
+
+.card[data-stage='lost'] {
+  border-left-color: var(--lost);
+  opacity: 0.75;
+}
+
+.card .row1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.card .who {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.card .value {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.card .value.paid {
+  color: var(--paid);
+}
+
+.card .summary {
+  margin: 4px 0 8px;
+  color: var(--ink);
+  font-size: 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card .meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 12px;
+  font-family: var(--mono);
+}
+
+.card .actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+/* ---- buttons: 44px targets, gloves-friendly ---- */
+.btn {
+  appearance: none;
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.btn-advance {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+  flex: 1;
+}
+
+.btn-quiet {
+  color: var(--muted);
+}
+
+.btn:focus-visible,
+.chip:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---- empty state ---- */
+.empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 48px 12px;
+  font-size: 14px;
+}
+
+/* ---- detail page ---- */
+.back {
+  display: inline-block;
+  color: var(--muted);
+  font-size: 13px;
+  padding: 8px 0;
+}
+
+.detail h1 {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 4px 0 2px;
+}
+
+.detail .sub {
+  color: var(--muted);
+  font-size: 13px;
+  font-family: var(--mono);
+  margin-bottom: 14px;
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 6px 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+.kv dt {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  align-self: baseline;
+}
+
+.kv dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.kv dd a {
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+}
+
+.stage-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.stage-grid .btn {
+  padding: 10px 4px;
+  font-size: 13px;
+  text-transform: capitalize;
+}
+
+.stage-grid .btn.current {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--canvas);
+}
+
+section h2 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 18px 0 8px;
+}
+
+.note-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.note-form textarea {
+  flex: 1;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  font: inherit;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 44px;
+  background: var(--card);
+}
+
+.log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.log li {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.log .when {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+/* ---- login ---- */
+.login {
+  max-width: 360px;
+  margin: 18vh auto 0;
+  padding: 0 16px;
+}
+
+.login .wordmark {
+  font-size: 18px;
+  display: block;
+  margin-bottom: 18px;
+}
+
+.login form {
+  display: grid;
+  gap: 10px;
+}
+
+.login input {
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  font: inherit;
+  background: var(--card);
+}
+
+.login .error {
+  color: var(--accent);
+  font-size: 13px;
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .btn,
+  .chip {
+    transition: transform 80ms ease;
+  }
+
+  .btn:active,
+  .chip:active {
+    transform: scale(0.97);
+  }
+}
