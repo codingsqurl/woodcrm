@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
-import { headers } from 'next/headers'
 import './globals.css'
+import { ServiceWorkerRegister } from './sw-register'
 
 export const metadata: Metadata = {
   title: 'Woodchuckers CRM',
@@ -17,19 +17,12 @@ export const viewport: Viewport = {
   userScalable: false,
 }
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // CSP nonce from middleware so the SW-registration inline script is allowed.
-  const nonce = (await headers()).get('x-nonce') ?? undefined
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
         {children}
-        <script
-          nonce={nonce}
-          dangerouslySetInnerHTML={{
-            __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}`,
-          }}
-        />
+        <ServiceWorkerRegister />
       </body>
     </html>
   )
