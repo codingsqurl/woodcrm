@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { currentUser } from '../../lib/session'
+import { devLoginAction } from './dev-login'
 
 export const metadata: Metadata = { title: 'Sign in — Woodchuckers CRM' }
 export const dynamic = 'force-dynamic'
@@ -32,6 +33,13 @@ export default async function LoginPage({
       <a className="btn btn-advance" href="/api/auth/google">
         Continue with Google
       </a>
+      {process.env.NODE_ENV !== 'production' ? (
+        <form action={devLoginAction}>
+          <button className="btn btn-quiet" type="submit">
+            Dev sign-in (local only)
+          </button>
+        </form>
+      ) : null}
     </main>
   )
 }
