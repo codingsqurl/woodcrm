@@ -83,13 +83,21 @@ a {
   cursor: pointer;
 }
 
-/* ---- stage rail: chips strung on one hairline, like clips on a rope ---- */
+/* ---- stage rail: chips strung on one hairline, like clips on a rope.
+   Sticky so it doubles as a jump-nav down the board. ---- */
 .rail {
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
   gap: 8px;
   overflow-x: auto;
   padding: 10px 2px 12px;
+  margin: 0 -14px;
+  padding-left: 14px;
+  padding-right: 14px;
+  background: color-mix(in srgb, var(--canvas) 92%, transparent);
+  backdrop-filter: saturate(140%) blur(6px);
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
@@ -688,4 +696,187 @@ section h2 {
 .log .when.overdue {
   color: var(--accent);
   font-weight: 700;
+}
+
+/* ---- home board: KPIs, coming-up, and the full stage board ---- */
+
+/* KPI strip — four flat tiles, numbers set in the ledger mono. Always shown,
+   so the top of the screen has weight even at zero. */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  padding: 6px 0 12px;
+}
+
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.kpi-label {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.kpi-num {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.kpi-num.paid {
+  color: var(--paid);
+}
+
+.kpi-link {
+  transition: border-color 0.12s ease;
+}
+
+.kpi-link:hover {
+  border-color: var(--accent);
+}
+
+/* Coming-up — the next appointments, so the calendar has a presence here. */
+.coming {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 4px;
+}
+
+.coming-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.coming-head a {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.coming-empty {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.coming-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.coming-list li {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  font-size: 14px;
+}
+
+.coming-when {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  flex: 0 0 auto;
+  min-width: 96px;
+}
+
+.coming-what {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The board — every stage in full, stacked. Scroll-margin clears the sticky
+   rail when a chip jumps here. */
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 14px;
+}
+
+.stage-group {
+  scroll-margin-top: 64px;
+}
+
+.stage-group[data-stage='lost'] {
+  opacity: 0.72;
+}
+
+.stage-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  border-bottom: 2px solid var(--line);
+}
+
+.stage-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  text-transform: capitalize;
+  letter-spacing: 0.01em;
+}
+
+.stage-n {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+
+.stage-cents {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.stage-cents.paid {
+  color: var(--paid);
+}
+
+/* Ghost row — keeps an empty stage occupying space so the board's shape reads
+   even before any leads exist. */
+.ghost {
+  margin: 0;
+  padding: 14px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  border: 1.5px dashed var(--line);
+  border-radius: 10px;
+}
+
+.ghost .cap {
+  text-transform: capitalize;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kpi-link {
+    transition: none;
+  }
 }
