@@ -412,6 +412,10 @@ section h2 {
   text-decoration: none;
 }
 
+.login form {
+  margin-top: 10px;
+}
+
 .login .error {
   color: var(--accent);
   font-size: 13px;
