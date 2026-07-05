@@ -4,6 +4,7 @@
 import Link from 'next/link'
 import { requireUser } from '../lib/session'
 import { leadsByStage, stageTotals, nextStage, isStage, STAGES, type Stage } from '../lib/leads'
+import { upcomingJobCount } from '../lib/jobs'
 import { money, timeAgo } from '../lib/format'
 import { logoutAction, moveStageAction } from './actions'
 
@@ -26,9 +27,14 @@ export default async function PipelinePage({ searchParams }: Props) {
         <Link href="/" className="wordmark">
           Woodchuckers <em>CRM</em>
         </Link>
-        <form action={logoutAction}>
-          <button type="submit">Sign out</button>
-        </form>
+        <nav className="topnav">
+          <Link href="/jobs">
+            Schedule{upcomingJobCount() > 0 ? <span className="n">{upcomingJobCount()}</span> : null}
+          </Link>
+          <form action={logoutAction}>
+            <button type="submit">Sign out</button>
+          </form>
+        </nav>
       </header>
 
       <nav className="rail" aria-label="Pipeline stages">
