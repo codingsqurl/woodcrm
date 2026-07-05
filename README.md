@@ -35,12 +35,27 @@ optional equipment.
 ```bash
 npm install
 cp .env.example .env.local        # set CRM_WEBHOOK_SECRET (openssl rand -hex 32)
-npm run createuser you@example.com "Your Name" "a-long-password-here"
 npm run dev
 ```
 
+Sign-in is **Google OAuth** — no passwords anywhere. Create a *Web
+application* OAuth client at
+[console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials),
+add `<APP_BASE_URL>/api/auth/google/callback` as an authorized redirect URI
+(one per environment, e.g. `http://localhost:3000/api/auth/google/callback`),
+then set `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` in `.env.local`. Allow
+yourself in either way:
+
+```bash
+# option A: pre-create the row
+npm run createuser you@example.com "Your Name"
+# option B: let first sign-in create it
+echo 'GOOGLE_ALLOWED_EMAILS=you@example.com' >> .env.local
+```
+
 Deploy: `fly launch` with the included `Dockerfile`/`fly.toml`, create the
-`data` volume, `fly secrets set CRM_WEBHOOK_SECRET=...`. One machine. Ever.
+`data` volume, `fly secrets set CRM_WEBHOOK_SECRET=... GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=... GOOGLE_ALLOWED_EMAILS=...`. One machine. Ever.
 
 ## Put it on the iPhone
 

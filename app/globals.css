@@ -404,23 +404,18 @@ section h2 {
   margin-bottom: 18px;
 }
 
-.login form {
-  display: grid;
-  gap: 10px;
-}
-
-.login input {
-  border: 1.5px solid var(--line);
-  border-radius: 8px;
-  padding: 12px;
-  font: inherit;
-  background: var(--card);
+.login .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-decoration: none;
 }
 
 .login .error {
   color: var(--accent);
   font-size: 13px;
-  margin: 0;
+  margin: 0 0 12px;
 }
 
 @media (prefers-reduced-motion: no-preference) {

@@ -1,21 +1,20 @@
 // createuser — seed the single operator account. No public signup, ever.
-//   npm run createuser <email> "<full name>" <password>
+//   npm run createuser <email> "<full name>"
+// Sign-in itself is Google OAuth: the row only needs to exist for the email
+// to be let in. (Alternative: list the email in GOOGLE_ALLOWED_EMAILS and the
+// callback auto-provisions this row on first sign-in.)
 import './load-env'
 import { createUser } from '../lib/auth'
 
-const [email, name, password] = process.argv.slice(2)
+const [email, name] = process.argv.slice(2)
 
-if (process.argv.slice(2).length !== 3) {
-  console.error('usage: npm run createuser <email> "<full name>" <password>')
-  process.exit(1)
-}
-if (password.length < 12) {
-  console.error('password must be at least 12 characters — it guards your whole pipeline')
+if (process.argv.slice(2).length !== 2) {
+  console.error('usage: npm run createuser <email> "<full name>"')
   process.exit(1)
 }
 
 try {
-  const u = createUser(email, name, password)
+  const u = createUser(email, name)
   console.log(`created ${u.email} (id=${u.id})`)
 } catch (err) {
   const msg = err instanceof Error ? err.message : String(err)
