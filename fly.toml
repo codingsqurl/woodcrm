@@ -11,6 +11,8 @@ primary_region = "dfw"
 [env]
   APP_BASE_URL = "https://woodchuckers-crm.fly.dev"
   DATABASE_URL = "/data/crm.db"
+  # Schedule dates/times are entered and shown in shop-local time.
+  TZ = "America/Denver"
 
 [[mounts]]
   source = "data"

@@ -103,6 +103,33 @@ export function addLeadNote(id: number, body: string): void {
   addNoteStmt.run(id, body)
 }
 
+// activeLeads: candidates for the schedule form — anything not out the side
+// door (lost) or fully finished (paid).
+const activeStmt = db.prepare(
+  `SELECT id, source, stage, name, phone, email, summary, value_cents, created_at, updated_at
+     FROM leads WHERE stage NOT IN ('lost', 'paid') ORDER BY updated_at DESC LIMIT 200`,
+)
+
+export function activeLeads(): Lead[] {
+  return activeStmt.all() as Lead[]
+}
+
+// leadAddress digs the service address out of the raw webhook payload (the
+// site's estimate form captures it; the leads table itself has no column).
+const payloadStmt = db.prepare(`SELECT payload FROM leads WHERE id = ?`)
+
+export function leadAddress(id: number): string {
+  const row = payloadStmt.get(id) as { payload: string } | undefined
+  if (!row) return ''
+  try {
+    const p = JSON.parse(row.payload) as { address?: unknown; lead?: { address?: unknown } }
+    const addr = p.address ?? p.lead?.address
+    return typeof addr === 'string' ? addr : ''
+  } catch {
+    return ''
+  }
+}
+
 // moveLeadStage: the only way a stage changes. Lead row + event row, atomically.
 const moveTx = db.transaction((id: number, from: Stage, to: Stage, note: string) => {
   moveStmt.run(to, nowEpoch(), id)

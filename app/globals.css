@@ -433,3 +433,216 @@ section h2 {
     transform: scale(0.97);
   }
 }
+
+/* ---- schedule: month grid + agenda (server-rendered, thumb-first) ---- */
+.topnav {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.topnav > a {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.topnav > a .n {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-radius: 999px;
+  padding: 1px 6px;
+  margin-left: 5px;
+}
+
+.cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 0 10px;
+}
+
+.cal-head h1 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.cal-head .btn {
+  min-height: 40px;
+  padding: 6px 16px;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 18px;
+}
+
+.cal-wd {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  padding: 4px 0;
+}
+
+.cal-day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+}
+
+.cal-day.pad {
+  border: none;
+  background: none;
+}
+
+.cal-day.today {
+  border-color: var(--accent);
+}
+
+.cal-day.selected {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--canvas);
+}
+
+.cal-day .dnum {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cal-day .dcount {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-radius: 999px;
+  padding: 2px 5px;
+}
+
+.cal-clear {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-left: 10px;
+}
+
+.card.job[data-status='canceled'] {
+  opacity: 0.55;
+}
+
+.jstatus {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+
+.jstatus.done {
+  color: var(--paid);
+}
+
+.jstatus.canceled {
+  color: var(--lost);
+}
+
+.jstatus.scheduled {
+  color: var(--accent);
+}
+
+.job-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding-top: 12px;
+}
+
+.job-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.job-form label:has(input[name='title']),
+.job-form label:has(input[name='address']),
+.job-form label:has(select) {
+  grid-column: 1 / -1;
+}
+
+.job-form input,
+.job-form select {
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  padding: 11px;
+  font: inherit;
+  font-size: 15px;
+  background: var(--card);
+  color: var(--ink);
+  min-height: 44px;
+  width: 100%;
+}
+
+.job-form > .btn {
+  grid-column: 1 / -1;
+}
+
+.new-job > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.new-job > summary::-webkit-details-marker {
+  display: none;
+}
+
+.resched {
+  margin-top: 8px;
+}
+
+.resched summary {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.quicklog {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.quicklog .chip {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.schedule-cta {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 10px;
+}

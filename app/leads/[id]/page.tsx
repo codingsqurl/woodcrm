@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireUser } from '../../../lib/session'
 import { leadByID, leadEvents, leadNotes, STAGES } from '../../../lib/leads'
+import { jobsForLead } from '../../../lib/jobs'
 import { dateTimeShort, money } from '../../../lib/format'
 import { addNoteAction, moveStageAction } from '../../actions'
 
@@ -24,6 +25,7 @@ export default async function LeadPage({ params }: Props) {
 
   const events = leadEvents(id)
   const notes = leadNotes(id)
+  const jobs = jobsForLead(id)
   const telHref = lead.phone ? `tel:${lead.phone.replace(/[^\d+]/g, '')}` : null
   const smsHref = lead.phone ? `sms:${lead.phone.replace(/[^\d+]/g, '')}` : null
 
@@ -91,10 +93,52 @@ export default async function LeadPage({ params }: Props) {
       </section>
 
       <section>
+        <h2>Appointments</h2>
+        <Link className="btn btn-advance schedule-cta" href={`/jobs?lead=${lead.id}`}>
+          Schedule a job
+        </Link>
+        {jobs.length > 0 ? (
+          <ul className="log">
+            {jobs.map((j) => (
+              <li key={j.id}>
+                <Link href={`/jobs?d=${new Date(j.starts_at * 1000).toLocaleDateString('en-CA')}`}>
+                  {j.title}
+                </Link>{' '}
+                — {j.status}
+                <div className="when">{dateTimeShort(j.starts_at)}</div>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </section>
+
+      <section>
         <h2>Notes</h2>
+        <div className="quicklog">
+          {(
+            [
+              ['📞 called', 'Log call'],
+              ['💬 texted', 'Log text'],
+              ['✉️ emailed', 'Log email'],
+            ] as const
+          ).map(([body, label]) => (
+            <form key={label} action={addNoteAction} style={{ display: 'contents' }}>
+              <input type="hidden" name="lead_id" value={lead.id} />
+              <input type="hidden" name="body" value={body} />
+              <button className="chip" type="submit">
+                {label}
+              </button>
+            </form>
+          ))}
+        </div>
         <form className="note-form" action={addNoteAction}>
           <input type="hidden" name="lead_id" value={lead.id} />
-          <textarea name="body" placeholder="Add a note" required maxLength={4000} />
+          <textarea
+            name="body"
+            placeholder="Add a note — what they said on the phone, what you quoted…"
+            required
+            maxLength={4000}
+          />
           <button className="btn" type="submit">
             Save
           </button>
