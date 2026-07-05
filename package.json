@@ -10,6 +10,7 @@
     "createuser": "tsx scripts/createuser.ts",
     "vapid": "tsx scripts/vapid.ts",
     "selftest:push": "tsx scripts/push-selftest.ts",
+    "test:reminders": "tsx scripts/reminders-e2e.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -15,22 +15,33 @@ export function startReminderLoop(): void {
   g.__crmReminderTimer.unref?.()
 }
 
+// runDueReminders pushes every task that's due and un-notified, then marks it.
+// Exported so it's a testable unit (the interface is the test surface): the
+// interval calls it, and scripts/reminders-e2e.ts drives it directly. Returns
+// how many tasks were notified.
+export async function runDueReminders(): Promise<number> {
+  let notified = 0
+  for (const task of dueUnnotified(nowEpoch())) {
+    // Fire once: mark even when nobody is subscribed or delivery fails —
+    // a reminder that nags every minute is worse than one missed push.
+    if (pushConfigured()) {
+      await broadcastPush({
+        title: `Follow up: ${task.title}`,
+        body: task.lead_name ?? '',
+        url: task.lead_id ? `/leads/${task.lead_id}` : '/',
+      })
+    }
+    markNotified(task.id)
+    notified++
+  }
+  return notified
+}
+
 async function tick(): Promise<void> {
   if (g.__crmReminderBusy) return // a slow push fan-out must not stack ticks
   g.__crmReminderBusy = true
   try {
-    for (const task of dueUnnotified(nowEpoch())) {
-      // Fire once: mark even when nobody is subscribed or delivery fails —
-      // a reminder that nags every minute is worse than one missed push.
-      if (pushConfigured()) {
-        await broadcastPush({
-          title: `Follow up: ${task.title}`,
-          body: task.lead_name ?? '',
-          url: task.lead_id ? `/leads/${task.lead_id}` : '/',
-        })
-      }
-      markNotified(task.id)
-    }
+    await runDueReminders()
   } catch (err) {
     console.error('reminders: tick failed:', err)
   } finally {
