@@ -1,0 +1,10 @@
+# Keep the build context clean: the image runs npm ci itself — a host-built
+# better-sqlite3 binary copied over it breaks on the image's older glibc.
+node_modules
+.next
+.git
+.claude
+.env*
+crm.db*
+tsconfig.tsbuildinfo
+next-env.d.ts
