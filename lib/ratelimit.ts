@@ -35,7 +35,7 @@ class RateLimiter {
 
 const g = globalThis as unknown as { __crmLoginRL?: RateLimiter }
 
-// Brute-force throttle on the single login form.
+// Throttle on the Google sign-in kickoff route.
 export const loginRL: RateLimiter = (g.__crmLoginRL ??= new RateLimiter(10, 60_000))
 
 // clientIP: behind Fly's proxy trust Fly-Client-IP, else the right-most
