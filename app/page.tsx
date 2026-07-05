@@ -6,7 +6,9 @@ import { requireUser } from '../lib/session'
 import { leadsByStage, stageTotals, nextStage, isStage, STAGES, type Stage } from '../lib/leads'
 import { upcomingJobCount } from '../lib/jobs'
 import { money, timeAgo } from '../lib/format'
+import { vapidPublicKey } from '../lib/env'
 import { logoutAction, moveStageAction } from './actions'
+import { PushToggle } from './push-toggle'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,6 +33,7 @@ export default async function PipelinePage({ searchParams }: Props) {
           <Link href="/jobs">
             Schedule{upcomingJobCount() > 0 ? <span className="n">{upcomingJobCount()}</span> : null}
           </Link>
+          <PushToggle vapidKey={vapidPublicKey()} />
           <form action={logoutAction}>
             <button type="submit">Sign out</button>
           </form>

@@ -6,8 +6,9 @@ import { notFound } from 'next/navigation'
 import { requireUser } from '../../../lib/session'
 import { leadByID, leadEvents, leadNotes, STAGES } from '../../../lib/leads'
 import { jobsForLead } from '../../../lib/jobs'
+import { tasksForLead } from '../../../lib/tasks'
 import { dateTimeShort, money } from '../../../lib/format'
-import { addNoteAction, moveStageAction } from '../../actions'
+import { addNoteAction, completeTaskAction, createTaskAction, moveStageAction } from '../../actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,6 +27,8 @@ export default async function LeadPage({ params }: Props) {
   const events = leadEvents(id)
   const notes = leadNotes(id)
   const jobs = jobsForLead(id)
+  const tasks = tasksForLead(id)
+  const nowSec = Math.floor(Date.now() / 1000)
   const telHref = lead.phone ? `tel:${lead.phone.replace(/[^\d+]/g, '')}` : null
   const smsHref = lead.phone ? `sms:${lead.phone.replace(/[^\d+]/g, '')}` : null
 
@@ -110,6 +113,43 @@ export default async function LeadPage({ params }: Props) {
             ))}
           </ul>
         ) : null}
+      </section>
+
+      <section>
+        <h2>Follow-ups</h2>
+        <form className="task-form" action={createTaskAction}>
+          <input type="hidden" name="lead_id" value={lead.id} />
+          <input name="title" placeholder="Call back about the quote…" required maxLength={200} />
+          <div className="task-when">
+            <input type="date" name="date" required />
+            <input type="time" name="time" defaultValue="09:00" required />
+            <button className="btn" type="submit">
+              Add
+            </button>
+          </div>
+        </form>
+        {tasks.length === 0 ? (
+          <p className="empty">No follow-ups. A due one pings every subscribed phone.</p>
+        ) : (
+          <ul className="log">
+            {tasks.map((t) => (
+              <li key={t.id} className={t.done_at ? 'task-done' : undefined}>
+                {t.title}
+                {!t.done_at ? (
+                  <form action={completeTaskAction} style={{ display: 'inline' }}>
+                    <input type="hidden" name="task_id" value={t.id} />
+                    <button className="chip task-check" type="submit">
+                      Done
+                    </button>
+                  </form>
+                ) : null}
+                <div className={`when${!t.done_at && t.due_at <= nowSec ? ' overdue' : ''}`}>
+                  {t.done_at ? `done ${dateTimeShort(t.done_at)}` : `due ${dateTimeShort(t.due_at)}`}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <section>

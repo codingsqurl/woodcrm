@@ -75,13 +75,21 @@ the integration doc once, so you trust the pipe before it matters.
 ## Roadmap (in priority order — resist reordering it)
 
 1. **Lead inbox + pipeline** — shipped in this scaffold.
-2. **Job scheduling calendar** — `jobs` table exists; build a day/week agenda
-   list (not a month grid) at `/jobs`.
-3. **Follow-up reminders** — `tasks` + `push_subscriptions` tables exist; add
-   VAPID keys, a subscribe button, and an in-process due-task check (single
-   machine ⇒ a plain interval is correct, same as the rate limiter).
-4. **Site health alerts** — poll the site's `/healthz`; external uptime checker
-   webhooks in; both paths end in a push. The patient never takes its own pulse.
+2. **Job scheduling calendar** — shipped: month calendar + day agenda at
+   `/jobs`, appointments wired to pipeline leads.
+3. **Follow-up reminders** — shipped: tasks on the lead page (`lib/tasks.ts`),
+   the 🔔 subscribe toggle on the pipeline header, and an in-process due-task
+   check (`lib/reminders.ts`, plain interval — single machine, same reasoning
+   as the rate limiter). Web Push is hand-rolled on node:crypto in
+   `lib/push.ts` (VAPID RFC 8292 + aes128gcm RFC 8291); `npm run selftest:push`
+   proves the crypto round-trip. Setup: `npm run vapid`, paste the pair into
+   `.env.local` / fly secrets, toggle alerts on from the installed PWA.
+4. **Site health alerts** — shipped: `lib/health.ts` polls the site's
+   `/healthz` (SITE_HEALTH_URL, 3 misses = down), and an external uptime
+   checker can POST `/api/webhooks/health?token=…&status=down|up`. Both paths
+   share one state machine, pushes fire on transitions only. The patient never
+   takes its own pulse.
 
-Explicit non-goals until the above ship: SMS (A2P 10DLC is weeks of paperwork),
-email sequences, invoicing (integrate Square/Stripe, never build billing).
+Explicit non-goals now the above shipped: SMS (A2P 10DLC is weeks of
+paperwork), email sequences, invoicing (integrate Square/Stripe, never build
+billing).

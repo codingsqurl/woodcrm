@@ -20,6 +20,34 @@ export function googleClientSecret(): string {
   return process.env.GOOGLE_CLIENT_SECRET || ''
 }
 
+// VAPID keys for Web Push (raw P-256, base64url — generate: npm run vapid).
+// Both REQUIRED for push; missing values mean subscribe refuses and no push
+// ever sends — fail closed, never open.
+export function vapidPublicKey(): string {
+  return process.env.VAPID_PUBLIC_KEY || ''
+}
+
+export function vapidPrivateKey(): string {
+  return process.env.VAPID_PRIVATE_KEY || ''
+}
+
+// Contact claim inside the VAPID JWT; push services use it to reach the
+// operator if the sender misbehaves.
+export function vapidSubject(): string {
+  return process.env.VAPID_SUBJECT || 'mailto:woodchuckerstrees719@gmail.com'
+}
+
+// The marketing site's health endpoint. Unset ⇒ polling disabled.
+export function siteHealthURL(): string {
+  return process.env.SITE_HEALTH_URL || ''
+}
+
+// Shared token for the external uptime checker's webhook. Unset ⇒ the
+// endpoint refuses everything — fail closed, never open.
+export function uptimeWebhookToken(): string {
+  return process.env.UPTIME_WEBHOOK_TOKEN || ''
+}
+
 // Emails allowed to auto-provision a user row on first Google sign-in.
 // Anyone else must already exist in the users table (scripts/createuser.ts).
 export function googleAllowedEmails(): string[] {

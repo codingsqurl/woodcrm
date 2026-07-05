@@ -8,6 +8,8 @@
     "build": "next build --turbopack",
     "start": "next start",
     "createuser": "tsx scripts/createuser.ts",
+    "vapid": "tsx scripts/vapid.ts",
+    "selftest:push": "tsx scripts/push-selftest.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

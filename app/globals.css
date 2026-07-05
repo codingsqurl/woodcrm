@@ -646,3 +646,46 @@ section h2 {
   align-items: center;
   margin-bottom: 10px;
 }
+
+/* ---- follow-ups ---- */
+.task-form {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.task-form input {
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  font: inherit;
+  font-size: 14px;
+  background: var(--card);
+}
+
+.task-when {
+  display: flex;
+  gap: 8px;
+}
+
+.task-when input {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-check {
+  float: right;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.task-done {
+  opacity: 0.55;
+}
+
+.log .when.overdue {
+  color: var(--accent);
+  font-weight: 700;
+}
