@@ -48,6 +48,13 @@ export function uptimeWebhookToken(): string {
   return process.env.UPTIME_WEBHOOK_TOKEN || ''
 }
 
+// Signing key for the stateless session JWT (HS256). REQUIRED: without it,
+// sign-in fails closed — no token can be minted or verified. Generate with
+// openssl rand -hex 32 and set the SAME value everywhere the app runs.
+export function sessionSecret(): string {
+  return process.env.SESSION_SECRET || ''
+}
+
 // Emails allowed to auto-provision a user row on first Google sign-in.
 // Anyone else must already exist in the users table (scripts/createuser.ts).
 export function googleAllowedEmails(): string[] {
