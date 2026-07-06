@@ -8,7 +8,7 @@ import { leadsByStage, stageTotals, nextStage, STAGES, type Stage } from '../lib
 import { upcomingJobCount, jobsInRange } from '../lib/jobs'
 import { money, timeAgo, dateTimeShort } from '../lib/format'
 import { vapidPublicKey } from '../lib/env'
-import { logoutAction, moveStageAction } from './actions'
+import { logoutAction, moveStageAction, createLeadAction } from './actions'
 import { PushToggle } from './push-toggle'
 
 export const dynamic = 'force-dynamic'
@@ -89,6 +89,42 @@ export default async function PipelinePage() {
             ))}
           </ul>
         )}
+      </section>
+
+      <section className="new-lead-wrap">
+        <details className="new-job new-lead">
+          <summary className="btn btn-advance">+ New lead</summary>
+          <form action={createLeadAction} className="job-form">
+            <label>
+              Name
+              <input type="text" name="name" maxLength={120} placeholder="Martinez" />
+            </label>
+            <label>
+              Phone
+              <input type="tel" name="phone" maxLength={40} placeholder="(719) 555-0142" />
+            </label>
+            <label>
+              Email
+              <input type="email" name="email" maxLength={160} placeholder="optional" />
+            </label>
+            <label>
+              Value $
+              <input type="text" name="value" inputMode="decimal" placeholder="1200" />
+            </label>
+            <label className="wide">
+              Job
+              <input
+                type="text"
+                name="summary"
+                maxLength={500}
+                placeholder="Remove 2 oaks over the driveway"
+              />
+            </label>
+            <button className="btn" type="submit">
+              Add lead
+            </button>
+          </form>
+        </details>
       </section>
 
       <nav className="rail" aria-label="Jump to stage">

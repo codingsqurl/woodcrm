@@ -4,9 +4,27 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { requireUser, endSession } from '../lib/session'
-import { addLeadNote, isStage, moveLeadStage, leadByID } from '../lib/leads'
+import {
+  addLeadNote,
+  isStage,
+  moveLeadStage,
+  leadByID,
+  createLead,
+  setLeadValue,
+} from '../lib/leads'
 import { createTask, completeTask, taskByID } from '../lib/tasks'
 import { parseLocalDateTime } from '../lib/format'
+
+// dollarsToCents parses a human-typed money field ("1,200", "$1200", "950.50")
+// into integer cents, or null for blank/garbage. Money is stored as whole
+// cents everywhere; this is the only place strings become that integer.
+function dollarsToCents(raw: string): number | null {
+  const s = raw.trim().replace(/[$,\s]/g, '')
+  if (s === '') return null
+  const n = Number(s)
+  if (!Number.isFinite(n) || n < 0) return null
+  return Math.round(n * 100)
+}
 
 export async function moveStageAction(formData: FormData): Promise<void> {
   await requireUser()
@@ -50,6 +68,38 @@ export async function completeTaskAction(formData: FormData): Promise<void> {
   if (!task) return
   completeTask(id)
   if (task.lead_id) revalidatePath(`/leads/${task.lead_id}`)
+}
+
+// createLeadAction adds a lead by hand — the phone call, the walk-up, the
+// referral that never touches the website form. Source is 'manual' so the
+// pipeline can tell hand-entered work from webhook leads. Redirects straight
+// to the new lead so the next move (quote, schedule) is one tap away.
+export async function createLeadAction(formData: FormData): Promise<void> {
+  await requireUser()
+  const name = String(formData.get('name') ?? '').trim().slice(0, 120)
+  const phone = String(formData.get('phone') ?? '').trim().slice(0, 40)
+  const email = String(formData.get('email') ?? '').trim().slice(0, 160)
+  const summary = String(formData.get('summary') ?? '').trim().slice(0, 500)
+  const value_cents = dollarsToCents(String(formData.get('value') ?? ''))
+  // Need at least one way to identify or reach them; an all-blank lead is noise.
+  if (!name && !phone && !email) {
+    revalidatePath('/')
+    redirect('/')
+  }
+  const id = createLead({ source: 'manual', name, phone, email, summary, value_cents })
+  revalidatePath('/')
+  redirect(`/leads/${id}`)
+}
+
+// setLeadValueAction sets the dollar value of a deal — what makes the pipeline
+// and Won totals real money instead of a lead count. Blank clears it.
+export async function setLeadValueAction(formData: FormData): Promise<void> {
+  await requireUser()
+  const id = Number(formData.get('lead_id'))
+  if (!Number.isInteger(id) || !leadByID(id)) return
+  setLeadValue(id, dollarsToCents(String(formData.get('value') ?? '')))
+  revalidatePath(`/leads/${id}`)
+  revalidatePath('/')
 }
 
 export async function logoutAction(): Promise<void> {

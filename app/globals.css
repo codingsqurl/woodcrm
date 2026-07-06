@@ -875,6 +875,44 @@ section h2 {
   text-transform: capitalize;
 }
 
+/* New-lead: reuses the .new-job disclosure + .job-form grid; Job field spans. */
+.new-lead-wrap {
+  padding: 4px 0 2px;
+}
+
+.job-form label.wide {
+  grid-column: 1 / -1;
+}
+
+/* Deal-value editor on the lead page — a dollar sign, an amount, a save. */
+.value-edit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.value-dollar {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--muted);
+}
+
+.value-edit input {
+  flex: 1;
+  min-width: 0;
+  max-width: 180px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  padding: 11px;
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 16px;
+  min-height: 44px;
+  background: var(--card);
+  color: var(--ink);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .kpi-link {
     transition: none;

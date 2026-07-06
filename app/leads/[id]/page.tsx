@@ -8,7 +8,13 @@ import { leadByID, leadEvents, leadNotes, STAGES } from '../../../lib/leads'
 import { jobsForLead } from '../../../lib/jobs'
 import { tasksForLead } from '../../../lib/tasks'
 import { dateTimeShort, money } from '../../../lib/format'
-import { addNoteAction, completeTaskAction, createTaskAction, moveStageAction } from '../../actions'
+import {
+  addNoteAction,
+  completeTaskAction,
+  createTaskAction,
+  moveStageAction,
+  setLeadValueAction,
+} from '../../actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -75,6 +81,25 @@ export default async function LeadPage({ params }: Props) {
         <dt>Came in</dt>
         <dd>{dateTimeShort(lead.created_at)}</dd>
       </dl>
+
+      <section>
+        <h2>Deal value</h2>
+        <form className="value-edit" action={setLeadValueAction}>
+          <input type="hidden" name="lead_id" value={lead.id} />
+          <span className="value-dollar">$</span>
+          <input
+            type="text"
+            name="value"
+            inputMode="decimal"
+            defaultValue={lead.value_cents != null ? String(Math.round(lead.value_cents / 100)) : ''}
+            placeholder="0"
+            aria-label="Deal value in dollars"
+          />
+          <button className="btn" type="submit">
+            Save
+          </button>
+        </form>
+      </section>
 
       <section>
         <h2>Stage</h2>
