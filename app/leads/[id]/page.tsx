@@ -8,6 +8,8 @@ import { leadByID, leadEvents, leadNotes, reviewRequestedAt, STAGES } from '../.
 import { latestQuoteForLead } from '../../../lib/quotes'
 import { jobsForLead } from '../../../lib/jobs'
 import { tasksForLead } from '../../../lib/tasks'
+import { sketchesForLead } from '../../../lib/sketches'
+import { newSketchAction } from '../../sketch/actions'
 import { dateTimeShort, money } from '../../../lib/format'
 import {
   addNoteAction,
@@ -39,6 +41,7 @@ export default async function LeadPage({ params }: Props) {
   const tasks = tasksForLead(id)
   const reviewedAt = reviewRequestedAt(id)
   const latestQuote = latestQuoteForLead(id)
+  const sketches = sketchesForLead(id)
   const nowSec = Math.floor(Date.now() / 1000)
   const telHref = lead.phone ? `tel:${lead.phone.replace(/[^\d+]/g, '')}` : null
   const smsHref = lead.phone ? `sms:${lead.phone.replace(/[^\d+]/g, '')}` : null
@@ -200,6 +203,27 @@ export default async function LeadPage({ params }: Props) {
                 </Link>{' '}
                 — {j.status}
                 <div className="when">{dateTimeShort(j.starts_at)}</div>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </section>
+
+      <section>
+        <h2>Sketches</h2>
+        <form action={newSketchAction}>
+          <input type="hidden" name="lead_id" value={lead.id} />
+          <input type="hidden" name="title" value={`Site — ${lead.name || 'lead #' + lead.id}`} />
+          <button className="btn btn-advance schedule-cta" type="submit">
+            + New sketch
+          </button>
+        </form>
+        {sketches.length > 0 ? (
+          <ul className="log">
+            {sketches.map((s) => (
+              <li key={s.id}>
+                <Link href={`/sketch/${s.id}`}>{s.title}</Link>
+                <div className="when">{dateTimeShort(s.updated_at)}</div>
               </li>
             ))}
           </ul>

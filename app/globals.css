@@ -1595,3 +1595,60 @@ section h2 {
   font-weight: 700;
   text-align: right;
 }
+
+/* ---- sketchpad (Excalidraw) ---- */
+.sketch-page {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+
+.sketch-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--card);
+}
+
+.sketch-head .back {
+  padding: 4px 0;
+}
+
+.sketch-title {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.sketch-canvas {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.sketch-status {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  pointer-events: none;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  background: color-mix(in srgb, #ffffff 88%, transparent);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 12px;
+}
+
+.sketch-status.ok {
+  color: var(--paid);
+}
+
+.sketch-loading {
+  padding: 24px;
+  color: var(--muted);
+}
