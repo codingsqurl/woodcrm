@@ -2,7 +2,7 @@
 // dev-login.ts — local-testing bypass. Signs in as the first active user
 // (creating dev@localhost if the table is empty). Gated on NODE_ENV, which
 // `next build` compiles to 'production' — this action is a no-op in any
-// deployed build, so the access key stays the only real door in prod.
+// deployed build, so Google OAuth stays the only real door.
 import { redirect } from 'next/navigation'
 import { createUser } from '../../lib/auth'
 import { db } from '../../lib/db'

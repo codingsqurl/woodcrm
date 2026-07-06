@@ -1,15 +1,19 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { currentUser } from '../../lib/session'
-import { accessLoginAction } from './access-login'
 import { devLoginAction } from './dev-login'
 
 export const metadata: Metadata = { title: 'Sign in — Woodchuckers CRM' }
 export const dynamic = 'force-dynamic'
 
 const ERRORS: Record<string, string> = {
-  badkey: 'Wrong access key.',
+  denied: 'Google sign-in was cancelled.',
+  state: 'Sign-in expired or was tampered with. Try again.',
+  google: 'Google didn’t complete the sign-in. Try again.',
+  unverified: 'That Google account’s email isn’t verified.',
+  unauthorized: 'That Google account isn’t allowed in this CRM.',
   ratelimit: 'Too many attempts. Wait a minute and try again.',
+  config: 'Google sign-in isn’t configured on the server.',
 }
 
 export default async function LoginPage({
@@ -26,19 +30,9 @@ export default async function LoginPage({
         Woodchuckers <em>CRM</em>
       </span>
       {message ? <p className="error">{message}</p> : null}
-      <form action={accessLoginAction} className="login-form">
-        <input
-          type="password"
-          name="key"
-          placeholder="Access key"
-          autoComplete="current-password"
-          autoFocus
-          required
-        />
-        <button className="btn btn-advance" type="submit">
-          Unlock
-        </button>
-      </form>
+      <a className="btn btn-advance" href="/api/auth/google">
+        Continue with Google
+      </a>
       {process.env.NODE_ENV !== 'production' ? (
         <form action={devLoginAction}>
           <button className="btn btn-quiet" type="submit">
