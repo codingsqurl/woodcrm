@@ -4,6 +4,12 @@
 import { nowEpoch } from './db'
 import { broadcastPush, pushConfigured } from './push'
 import { dueUnnotified, markNotified } from './tasks'
+import { jobsNeedingReminder, markJobReminded } from './jobs'
+import { sendMail, jobReminderEmail, mailerConfigured } from './mail'
+import { slotLabel } from './booking'
+
+// How far ahead a booked customer gets their reminder email (~the day before).
+const JOB_REMINDER_LEAD_S = 30 * 60 * 60
 
 const TICK_MS = 60_000
 
@@ -37,11 +43,33 @@ export async function runDueReminders(): Promise<number> {
   return notified
 }
 
+// runJobReminders emails booked customers the day before their appointment,
+// once each. Marks fired even when mail is off or absent so nobody is nagged
+// every minute — same fire-once rule as the task reminders.
+export async function runJobReminders(): Promise<number> {
+  const now = nowEpoch()
+  let sent = 0
+  for (const job of jobsNeedingReminder(now, now + JOB_REMINDER_LEAD_S)) {
+    if (mailerConfigured() && job.lead_email) {
+      try {
+        const { subject, html } = jobReminderEmail(job.lead_name ?? '', slotLabel(job.starts_at))
+        await sendMail(job.lead_email, subject, html)
+      } catch (err) {
+        console.error(`job reminder ${job.id} failed:`, err)
+      }
+    }
+    markJobReminded(job.id)
+    sent++
+  }
+  return sent
+}
+
 async function tick(): Promise<void> {
   if (g.__crmReminderBusy) return // a slow push fan-out must not stack ticks
   g.__crmReminderBusy = true
   try {
     await runDueReminders()
+    await runJobReminders()
   } catch (err) {
     console.error('reminders: tick failed:', err)
   } finally {

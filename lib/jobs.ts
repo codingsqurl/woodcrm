@@ -101,3 +101,32 @@ export function upcomingJobCount(): number {
   startOfToday.setHours(0, 0, 0, 0)
   return (upcomingStmt.get(Math.floor(startOfToday.getTime() / 1000)) as { n: number }).n
 }
+
+// ── customer reminders ──────────────────────────────────────────────────────
+// jobsNeedingReminder: scheduled jobs starting inside (from, to] whose customer
+// hasn't been reminded yet, with the lead's name/email for the email.
+export type JobReminder = {
+  id: number
+  title: string
+  starts_at: number
+  lead_name: string | null
+  lead_email: string | null
+}
+
+const needReminderStmt = db.prepare(
+  `SELECT j.id, j.title, j.starts_at, l.name AS lead_name, l.email AS lead_email
+     FROM jobs j LEFT JOIN leads l ON l.id = j.lead_id
+    WHERE j.status = 'scheduled' AND j.reminder_sent_at IS NULL
+      AND j.starts_at > ? AND j.starts_at <= ?
+    ORDER BY j.starts_at LIMIT 50`,
+)
+
+export function jobsNeedingReminder(fromSec: number, toSec: number): JobReminder[] {
+  return needReminderStmt.all(fromSec, toSec) as JobReminder[]
+}
+
+const markRemindedStmt = db.prepare(`UPDATE jobs SET reminder_sent_at = unixepoch() WHERE id = ?`)
+
+export function markJobReminded(id: number): void {
+  markRemindedStmt.run(id)
+}
