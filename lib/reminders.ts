@@ -5,11 +5,14 @@ import { nowEpoch } from './db'
 import { broadcastPush, pushConfigured } from './push'
 import { dueUnnotified, markNotified } from './tasks'
 import { jobsNeedingReminder, markJobReminded } from './jobs'
+import { coldLeads, markLeadNudged } from './leads'
 import { sendMail, jobReminderEmail, mailerConfigured } from './mail'
 import { slotLabel } from './booking'
 
 // How far ahead a booked customer gets their reminder email (~the day before).
 const JOB_REMINDER_LEAD_S = 30 * 60 * 60
+// How long a working lead can sit untouched before you get nudged to follow up.
+const COLD_LEAD_AFTER_S = 3 * 24 * 60 * 60
 
 const TICK_MS = 60_000
 
@@ -64,12 +67,33 @@ export async function runJobReminders(): Promise<number> {
   return sent
 }
 
+// runColdLeadNudges pushes the operator about working leads that have gone
+// quiet, once per cold spell. It's a nudge to YOU (not the customer), so it
+// only fires when push is configured; still marks so it never double-pings.
+export async function runColdLeadNudges(): Promise<number> {
+  const staleBefore = nowEpoch() - COLD_LEAD_AFTER_S
+  let nudged = 0
+  for (const lead of coldLeads(staleBefore)) {
+    if (pushConfigured()) {
+      await broadcastPush({
+        title: `Lead going cold: ${lead.name || '#' + lead.id}`,
+        body: `No movement in ${lead.stage} for 3 days — time to follow up.`,
+        url: `/leads/${lead.id}`,
+      })
+    }
+    markLeadNudged(lead.id)
+    nudged++
+  }
+  return nudged
+}
+
 async function tick(): Promise<void> {
   if (g.__crmReminderBusy) return // a slow push fan-out must not stack ticks
   g.__crmReminderBusy = true
   try {
     await runDueReminders()
     await runJobReminders()
+    await runColdLeadNudges()
   } catch (err) {
     console.error('reminders: tick failed:', err)
   } finally {

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireUser } from '../../../lib/session'
 import { leadByID, leadEvents, leadNotes, reviewRequestedAt, STAGES } from '../../../lib/leads'
+import { latestQuoteForLead } from '../../../lib/quotes'
 import { jobsForLead } from '../../../lib/jobs'
 import { tasksForLead } from '../../../lib/tasks'
 import { dateTimeShort, money } from '../../../lib/format'
@@ -15,6 +16,7 @@ import {
   moveStageAction,
   setLeadValueAction,
   requestReviewAction,
+  sendQuoteAction,
 } from '../../actions'
 
 export const dynamic = 'force-dynamic'
@@ -36,6 +38,7 @@ export default async function LeadPage({ params }: Props) {
   const jobs = jobsForLead(id)
   const tasks = tasksForLead(id)
   const reviewedAt = reviewRequestedAt(id)
+  const latestQuote = latestQuoteForLead(id)
   const nowSec = Math.floor(Date.now() / 1000)
   const telHref = lead.phone ? `tel:${lead.phone.replace(/[^\d+]/g, '')}` : null
   const smsHref = lead.phone ? `sms:${lead.phone.replace(/[^\d+]/g, '')}` : null
@@ -101,6 +104,45 @@ export default async function LeadPage({ params }: Props) {
             Save
           </button>
         </form>
+      </section>
+
+      <section>
+        <h2>Quote</h2>
+        {latestQuote ? (
+          <p className={`quote-status quote-${latestQuote.status}`}>
+            ${Math.round(latestQuote.amount_cents / 100).toLocaleString('en-US')} · {latestQuote.status}
+            {latestQuote.status !== 'sent' && latestQuote.responded_at
+              ? ` · ${dateTimeShort(latestQuote.responded_at)}`
+              : ` · ${dateTimeShort(latestQuote.sent_at)}`}
+          </p>
+        ) : null}
+        <details className="new-job">
+          <summary className="btn btn-advance">
+            {latestQuote ? 'Send a new quote' : 'Send a quote'}
+          </summary>
+          <form action={sendQuoteAction} className="job-form">
+            <input type="hidden" name="lead_id" value={lead.id} />
+            <label>
+              Amount $
+              <input type="text" name="amount" inputMode="decimal" required placeholder="1200" />
+            </label>
+            <label className="wide">
+              Details
+              <textarea
+                name="description"
+                maxLength={1000}
+                rows={3}
+                placeholder="Remove 2 oaks over the driveway, haul off, grind the stumps…"
+              />
+            </label>
+            <button className="btn" type="submit">
+              Email the quote
+            </button>
+          </form>
+        </details>
+        {!lead.email ? (
+          <p className="review-hint">Add an email above so the quote can be sent.</p>
+        ) : null}
       </section>
 
       <section>

@@ -91,6 +91,32 @@ export function jobReminderEmail(name: string, when: string): { subject: string;
   return { subject: `Reminder — ${when} · Woodchuckers`, html: emailShell('Appointment reminder', body) }
 }
 
+// quoteEmail — sends a customer their number with one link to accept or decline.
+// `amountCents` is whole cents; `url` is the public /quote/<token> page.
+export function quoteEmail(
+  name: string,
+  amountCents: number,
+  description: string,
+  url: string,
+): { subject: string; html: string } {
+  const safe = name ? escapeHtml(name.split(' ')[0]) : 'there'
+  const amount = `$${Math.round(amountCents / 100).toLocaleString('en-US')}`
+  const desc = description
+    ? `<div style="color:#c8d2c8;font:400 15px/1.6 Arial,sans-serif;margin:0 0 18px;white-space:pre-wrap;">${escapeHtml(description)}</div>`
+    : ''
+  const body = `<div style="color:#ffffff;font:800 22px Arial,sans-serif;margin:0 0 14px;">Your quote, ${safe}.</div>
+${desc}
+<div style="background:#06160d;border-radius:10px;padding:18px 20px;margin:0 0 20px;">
+<div style="color:#9fad9f;font:600 12px Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;margin:0 0 4px;">Total</div>
+<div style="color:#ffffff;font:800 30px Arial,sans-serif;">${amount}</div>
+</div>
+<table role="presentation" cellpadding="0" cellspacing="0"><tr>
+<td><a href="${url}" style="display:inline-block;background:#f2601c;color:#0e1411;font:700 15px Arial,sans-serif;text-decoration:none;padding:13px 26px;border-radius:10px;">Review &amp; respond</a></td>
+</tr></table>
+<div style="color:#9fad9f;font:400 13px/1.6 Arial,sans-serif;margin:16px 0 0;">Questions? Reply here or call <a href="tel:+17197562597" style="color:#f2601c;text-decoration:none;">(719) 756-2597</a>.</div>`
+  return { subject: `Your quote from Woodchuckers — ${amount}`, html: emailShell('Quote', body) }
+}
+
 // reviewRequestEmail — sent after a job is marked Paid. Warm, short, one button
 // to the review destination (REVIEW_URL — the links page by default, or a
 // direct Google review link once set). A happy customer is the cheapest lead.

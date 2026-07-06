@@ -15,7 +15,9 @@ import {
   reviewRequestedAt,
 } from '../lib/leads'
 import { createTask, completeTask, taskByID } from '../lib/tasks'
-import { sendMail, reviewRequestEmail } from '../lib/mail'
+import { createQuote } from '../lib/quotes'
+import { sendMail, reviewRequestEmail, quoteEmail } from '../lib/mail'
+import { appBaseURL } from '../lib/env'
 import { parseLocalDateTime } from '../lib/format'
 
 // sendReviewRequest emails a finished customer a review ask, exactly once, and
@@ -61,6 +63,42 @@ export async function moveStageAction(formData: FormData): Promise<void> {
   if (to === 'paid') await sendReviewRequest(id)
   revalidatePath('/')
   revalidatePath(`/leads/${id}`)
+}
+
+// sendQuoteAction emails a customer a dollar figure they can accept or decline
+// from a public link. Sending also sets the lead's deal value to the quote and
+// moves an early lead to 'quoted' — so the pipeline mirrors what the customer
+// is looking at. Best-effort mail: a send hiccup still records the quote.
+export async function sendQuoteAction(formData: FormData): Promise<void> {
+  await requireUser()
+  const id = Number(formData.get('lead_id'))
+  const amount_cents = dollarsToCents(String(formData.get('amount') ?? ''))
+  const description = String(formData.get('description') ?? '').trim().slice(0, 1000)
+  const lead = leadByID(id)
+  if (!lead || amount_cents == null || amount_cents <= 0) return
+
+  const quote = createQuote(id, amount_cents, description)
+  setLeadValue(id, amount_cents)
+  if (lead.stage === 'new' || lead.stage === 'contacted') {
+    moveLeadStage(id, 'quoted', `quote sent: $${Math.round(amount_cents / 100)}`)
+  }
+  addLeadNote(id, `💵 quote sent: $${Math.round(amount_cents / 100).toLocaleString('en-US')}`)
+
+  if (lead.email) {
+    try {
+      const { subject, html } = quoteEmail(
+        lead.name,
+        amount_cents,
+        description,
+        `${appBaseURL()}/quote/${quote.token}`,
+      )
+      await sendMail(lead.email, subject, html)
+    } catch (err) {
+      console.error(`quote email for lead ${id} failed:`, err)
+    }
+  }
+  revalidatePath(`/leads/${id}`)
+  revalidatePath('/')
 }
 
 // requestReviewAction — the manual "Ask for a review" button on the lead page,

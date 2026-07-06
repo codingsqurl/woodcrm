@@ -165,6 +165,30 @@ export function reviewRequestedAt(id: number): number | null {
   return row?.review_requested_at ?? null
 }
 
+// ── cold-lead nudges ────────────────────────────────────────────────────────
+// coldLeads: still-working leads (not won/lost) untouched since `staleBefore`,
+// that haven't been nudged since their last touch. Keeping last_nudge_at ahead
+// of updated_at after a nudge means one ping per cold spell; touching the lead
+// (updated_at advances) re-arms exactly one future nudge.
+export type ColdLead = { id: number; name: string; stage: Stage; updated_at: number }
+
+const coldStmt = db.prepare(
+  `SELECT id, name, stage, updated_at FROM leads
+    WHERE stage IN ('new', 'contacted', 'quoted')
+      AND updated_at <= ?
+      AND (last_nudge_at IS NULL OR last_nudge_at < updated_at)
+    ORDER BY updated_at LIMIT 50`,
+)
+const markNudgedStmt = db.prepare(`UPDATE leads SET last_nudge_at = unixepoch() WHERE id = ?`)
+
+export function coldLeads(staleBefore: number): ColdLead[] {
+  return coldStmt.all(staleBefore) as ColdLead[]
+}
+
+export function markLeadNudged(id: number): void {
+  markNudgedStmt.run(id)
+}
+
 export type NewLead = {
   source: string
   name?: string

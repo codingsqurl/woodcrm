@@ -597,7 +597,8 @@ section h2 {
 }
 
 .job-form input,
-.job-form select {
+.job-form select,
+.job-form textarea {
   border: 1.5px solid var(--line);
   border-radius: 8px;
   padding: 11px;
@@ -607,6 +608,10 @@ section h2 {
   color: var(--ink);
   min-height: 44px;
   width: 100%;
+}
+
+.job-form textarea {
+  resize: vertical;
 }
 
 .job-form > .btn {
@@ -1162,4 +1167,89 @@ section h2 {
 .book-done .book-submit {
   max-width: 280px;
   margin-top: 14px;
+}
+
+/* ---- quote: status pill on the lead page + public quote page ---- */
+.quote-status {
+  margin: 0 0 10px;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: capitalize;
+}
+
+.quote-sent {
+  color: var(--ink);
+}
+
+.quote-accepted {
+  color: var(--paid);
+}
+
+.quote-declined {
+  color: var(--lost);
+}
+
+.quote-desc {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: center;
+  white-space: pre-wrap;
+  margin: 0 0 18px;
+}
+
+.quote-amount {
+  text-align: center;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 22px;
+  margin: 0 0 22px;
+}
+
+.quote-amount-label {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.quote-amount-num {
+  font-family: var(--mono);
+  font-weight: 800;
+  font-size: 40px;
+  color: var(--ink);
+}
+
+.quote-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quote-decline {
+  width: 100%;
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  color: var(--muted);
+  border-radius: 10px;
+  padding: 13px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  min-height: 48px;
+  cursor: pointer;
+}
+
+.quote-result {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding-top: 4vh;
 }
