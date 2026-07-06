@@ -6,10 +6,11 @@ import Link from 'next/link'
 import { requireUser } from '../lib/session'
 import { leadsByStage, stageTotals, nextStage, STAGES, type Stage } from '../lib/leads'
 import { upcomingJobCount, jobsInRange } from '../lib/jobs'
-import { money, timeAgo, dateTimeShort } from '../lib/format'
+import { money, dateTimeShort } from '../lib/format'
 import { vapidPublicKey } from '../lib/env'
-import { logoutAction, moveStageAction, createLeadAction } from './actions'
+import { logoutAction, createLeadAction } from './actions'
 import { PushToggle } from './push-toggle'
+import { PipelineBoard } from './pipeline-board'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,6 +39,30 @@ export default async function PipelinePage() {
   const today = startOfTodayEpoch()
   const upcoming = jobsInRange(today, today + 60 * 24 * 60 * 60).slice(0, 3)
 
+  // Serializable board data for the client drag-drop component: each lead
+  // carries its own precomputed next stage (nextStage can't cross into the
+  // client bundle — it lives beside the DB layer).
+  const boardGroups = STAGES.map((s) => {
+    const t = totals.get(s)!
+    return {
+      stage: s,
+      n: t.n,
+      cents: t.cents,
+      leads: leadsFor.get(s)!.map((l) => ({
+        id: l.id,
+        name: l.name,
+        email: l.email,
+        phone: l.phone,
+        summary: l.summary,
+        source: l.source,
+        stage: l.stage,
+        value_cents: l.value_cents,
+        updated_at: l.updated_at,
+        next: nextStage(l.stage),
+      })),
+    }
+  })
+
   return (
     <div className="shell">
       <header className="topbar">
@@ -46,6 +71,7 @@ export default async function PipelinePage() {
         </Link>
         <nav className="topnav">
           <Link href="/jobs">Schedule</Link>
+          <Link href="/reports">Reports</Link>
           <PushToggle vapidKey={vapidPublicKey()} />
           <form action={logoutAction}>
             <button type="submit">Sign out</button>
@@ -135,70 +161,7 @@ export default async function PipelinePage() {
         ))}
       </nav>
 
-      <div className="board">
-        {STAGES.map((s) => {
-          const t = totals.get(s)!
-          const leads = leadsFor.get(s)!
-          return (
-            <section key={s} id={`stage-${s}`} className="stage-group" data-stage={s}>
-              <header className="stage-head">
-                <h2 className="stage-name">{s}</h2>
-                <span className="stage-n">{t.n}</span>
-                <span className={`stage-cents${s === 'paid' ? ' paid' : ''}`}>{money(t.cents)}</span>
-              </header>
-
-              {leads.length === 0 ? (
-                <p className="ghost">
-                  No leads in <span className="cap">{s}</span>
-                </p>
-              ) : (
-                <div className="cards">
-                  {leads.map((lead) => {
-                    const next = nextStage(lead.stage)
-                    return (
-                      <article key={lead.id} className="card" data-stage={lead.stage}>
-                        <Link href={`/leads/${lead.id}`}>
-                          <div className="row1">
-                            <span className="who">
-                              {lead.name || lead.email || lead.phone || 'Unknown'}
-                            </span>
-                            <span className={`value${lead.stage === 'paid' ? ' paid' : ''}`}>
-                              {money(lead.value_cents)}
-                            </span>
-                          </div>
-                          {lead.summary ? <p className="summary">{lead.summary}</p> : null}
-                          <div className="meta">
-                            <span>{lead.source}</span>
-                            <span>{timeAgo(lead.updated_at)}</span>
-                          </div>
-                        </Link>
-                        {next ? (
-                          <div className="actions">
-                            <form action={moveStageAction} style={{ display: 'contents' }}>
-                              <input type="hidden" name="lead_id" value={lead.id} />
-                              <input type="hidden" name="to" value={next} />
-                              <button className="btn btn-advance" type="submit">
-                                Mark {next}
-                              </button>
-                            </form>
-                            <form action={moveStageAction} style={{ display: 'contents' }}>
-                              <input type="hidden" name="lead_id" value={lead.id} />
-                              <input type="hidden" name="to" value="lost" />
-                              <button className="btn btn-quiet" type="submit">
-                                Lost
-                              </button>
-                            </form>
-                          </div>
-                        ) : null}
-                      </article>
-                    )
-                  })}
-                </div>
-              )}
-            </section>
-          )
-        })}
-      </div>
+      <PipelineBoard groups={boardGroups} />
     </div>
   )
 }
