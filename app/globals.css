@@ -1289,6 +1289,170 @@ section h2 {
   margin: 4px 2px 14px;
 }
 
+/* ---- second brain ---- */
+.notes-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 4px 2px 16px;
+}
+
+.notes-head .page-h1 {
+  margin: 0;
+}
+
+.notes-head .btn {
+  flex: 0 0 auto;
+  min-height: 40px;
+}
+
+.note-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.note-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.note-list li a {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.note-list .when {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  flex: 0 0 auto;
+}
+
+.note-meta {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  margin: -8px 2px 16px;
+}
+
+/* rendered markdown */
+.note-body {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 18px;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.note-body h1,
+.note-body h2,
+.note-body h3 {
+  margin: 18px 0 8px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+}
+
+.note-body h1 {
+  font-size: 20px;
+}
+.note-body h2 {
+  font-size: 17px;
+}
+.note-body h3 {
+  font-size: 15px;
+}
+
+.note-body h1:first-child,
+.note-body h2:first-child,
+.note-body h3:first-child,
+.note-body p:first-child {
+  margin-top: 0;
+}
+
+.note-body p {
+  margin: 0 0 12px;
+}
+
+.note-body ul {
+  margin: 0 0 12px;
+  padding-left: 22px;
+}
+
+.note-body code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.note-body a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  text-underline-offset: 2px;
+}
+
+.wikilink {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.wikilink.unresolved {
+  color: var(--muted);
+  text-decoration-style: dashed;
+}
+
+/* editor */
+.note-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.note-edit input,
+.note-edit textarea {
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  font: inherit;
+  font-size: 15px;
+  background: var(--card);
+  color: var(--ink);
+  width: 100%;
+}
+
+.note-edit textarea {
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.note-editor {
+  margin-top: 20px;
+}
+
+.note-editor > summary {
+  list-style: none;
+  display: inline-flex;
+  cursor: pointer;
+}
+
 .report-block {
   margin: 0 0 26px;
 }

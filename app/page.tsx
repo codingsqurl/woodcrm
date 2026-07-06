@@ -72,6 +72,7 @@ export default async function PipelinePage() {
         <nav className="topnav">
           <Link href="/jobs">Schedule</Link>
           <Link href="/reports">Reports</Link>
+          <Link href="/notes">Brain</Link>
           <PushToggle vapidKey={vapidPublicKey()} />
           <form action={logoutAction}>
             <button type="submit">Sign out</button>
