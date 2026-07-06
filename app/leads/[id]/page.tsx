@@ -4,7 +4,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireUser } from '../../../lib/session'
-import { leadByID, leadEvents, leadNotes, STAGES } from '../../../lib/leads'
+import { leadByID, leadEvents, leadNotes, reviewRequestedAt, STAGES } from '../../../lib/leads'
 import { jobsForLead } from '../../../lib/jobs'
 import { tasksForLead } from '../../../lib/tasks'
 import { dateTimeShort, money } from '../../../lib/format'
@@ -14,6 +14,7 @@ import {
   createTaskAction,
   moveStageAction,
   setLeadValueAction,
+  requestReviewAction,
 } from '../../actions'
 
 export const dynamic = 'force-dynamic'
@@ -34,6 +35,7 @@ export default async function LeadPage({ params }: Props) {
   const notes = leadNotes(id)
   const jobs = jobsForLead(id)
   const tasks = tasksForLead(id)
+  const reviewedAt = reviewRequestedAt(id)
   const nowSec = Math.floor(Date.now() / 1000)
   const telHref = lead.phone ? `tel:${lead.phone.replace(/[^\d+]/g, '')}` : null
   const smsHref = lead.phone ? `sms:${lead.phone.replace(/[^\d+]/g, '')}` : null
@@ -118,6 +120,28 @@ export default async function LeadPage({ params }: Props) {
             </form>
           ))}
         </div>
+      </section>
+
+      <section>
+        <h2>Reviews</h2>
+        {reviewedAt ? (
+          <p className="review-done">
+            ✓ Review requested {dateTimeShort(reviewedAt)}
+          </p>
+        ) : lead.email ? (
+          <form action={requestReviewAction}>
+            <input type="hidden" name="lead_id" value={lead.id} />
+            <button className="btn btn-advance" type="submit">
+              Ask for a review
+            </button>
+            <p className="review-hint">
+              Emails {lead.email} a thank-you with a link to leave a review. Sends on its own when
+              you mark this Paid.
+            </p>
+          </form>
+        ) : (
+          <p className="review-hint">Add an email above to ask this customer for a review.</p>
+        )}
       </section>
 
       <section>

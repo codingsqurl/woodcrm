@@ -147,6 +147,24 @@ export function setLeadValue(id: number, valueCents: number | null): void {
   setValueStmt.run(valueCents, nowEpoch(), id)
 }
 
+// ── review requests ─────────────────────────────────────────────────────────
+// markReviewRequested stamps the ask once and reports whether THIS call was the
+// one that set it — so the paid-stage trigger and the manual button both route
+// through here and a lead is asked exactly once. Returns false if already asked.
+const markReviewStmt = db.prepare(
+  `UPDATE leads SET review_requested_at = ? WHERE id = ? AND review_requested_at IS NULL`,
+)
+const reviewAtStmt = db.prepare(`SELECT review_requested_at FROM leads WHERE id = ?`)
+
+export function markReviewRequested(id: number): boolean {
+  return markReviewStmt.run(nowEpoch(), id).changes > 0
+}
+
+export function reviewRequestedAt(id: number): number | null {
+  const row = reviewAtStmt.get(id) as { review_requested_at: number | null } | undefined
+  return row?.review_requested_at ?? null
+}
+
 export type NewLead = {
   source: string
   name?: string

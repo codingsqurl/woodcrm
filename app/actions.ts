@@ -11,9 +11,33 @@ import {
   leadByID,
   createLead,
   setLeadValue,
+  markReviewRequested,
+  reviewRequestedAt,
 } from '../lib/leads'
 import { createTask, completeTask, taskByID } from '../lib/tasks'
+import { sendMail, reviewRequestEmail } from '../lib/mail'
 import { parseLocalDateTime } from '../lib/format'
+
+// sendReviewRequest emails a finished customer a review ask, exactly once, and
+// only when we can reach them. Best-effort: it never throws into the caller, so
+// a mail hiccup can't break a stage move. Marks the lead only on a real send,
+// so a failure stays retryable from the manual button. Returns what happened.
+async function sendReviewRequest(leadID: number): Promise<'sent' | 'skipped' | 'failed'> {
+  const lead = leadByID(leadID)
+  if (!lead || !lead.email) return 'skipped'
+  if (reviewRequestedAt(leadID) != null) return 'skipped' // already asked
+  try {
+    const { subject, html } = reviewRequestEmail(lead.name)
+    const id = await sendMail(lead.email, subject, html)
+    if (id === null) return 'skipped' // mail not configured
+    markReviewRequested(leadID)
+    addLeadNote(leadID, '✉️ review request sent')
+    return 'sent'
+  } catch (err) {
+    console.error(`review request for lead ${leadID} failed:`, err)
+    return 'failed'
+  }
+}
 
 // dollarsToCents parses a human-typed money field ("1,200", "$1200", "950.50")
 // into integer cents, or null for blank/garbage. Money is stored as whole
@@ -32,7 +56,20 @@ export async function moveStageAction(formData: FormData): Promise<void> {
   const to = String(formData.get('to') ?? '')
   if (!Number.isInteger(id) || !isStage(to)) return
   moveLeadStage(id, to)
+  // A won job is the moment to ask for a review — fire the ask on the way to
+  // 'paid'. Best-effort; never blocks the move from committing.
+  if (to === 'paid') await sendReviewRequest(id)
   revalidatePath('/')
+  revalidatePath(`/leads/${id}`)
+}
+
+// requestReviewAction — the manual "Ask for a review" button on the lead page,
+// for when you close on the phone or want to retry a failed send.
+export async function requestReviewAction(formData: FormData): Promise<void> {
+  await requireUser()
+  const id = Number(formData.get('lead_id'))
+  if (!Number.isInteger(id)) return
+  await sendReviewRequest(id)
   revalidatePath(`/leads/${id}`)
 }
 

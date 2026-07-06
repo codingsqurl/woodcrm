@@ -42,6 +42,23 @@ export function siteHealthURL(): string {
   return process.env.SITE_HEALTH_URL || ''
 }
 
+// Resend transactional email (review requests, reminders, quotes). Unset ⇒
+// email is "not configured" and those actions no-op instead of failing.
+export function resendApiKey(): string {
+  return process.env.RESEND_API_KEY || ''
+}
+
+export function mailFrom(): string {
+  return process.env.MAIL_FROM || 'Woodchuckers <onboarding@resend.dev>'
+}
+
+// Where the "leave us a review" button points. Defaults to the links page
+// (Google/Nextdoor/socials all live there); set to a direct Google review
+// link to send customers straight to the star rating.
+export function reviewURL(): string {
+  return process.env.REVIEW_URL || 'https://woodchuckers-links.fly.dev/'
+}
+
 // Shared token for the external uptime checker's webhook. Unset ⇒ the
 // endpoint refuses everything — fail closed, never open.
 export function uptimeWebhookToken(): string {
