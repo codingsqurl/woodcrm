@@ -10,16 +10,6 @@ export function webhookSecret(): string {
   return process.env.CRM_WEBHOOK_SECRET || ''
 }
 
-// Google OAuth client. Both REQUIRED for sign-in; missing values mean the
-// login route refuses everything — fail closed, never open.
-export function googleClientID(): string {
-  return process.env.GOOGLE_CLIENT_ID || ''
-}
-
-export function googleClientSecret(): string {
-  return process.env.GOOGLE_CLIENT_SECRET || ''
-}
-
 // VAPID keys for Web Push (raw P-256, base64url — generate: npm run vapid).
 // Both REQUIRED for push; missing values mean subscribe refuses and no push
 // ever sends — fail closed, never open.
@@ -72,11 +62,9 @@ export function sessionSecret(): string {
   return process.env.SESSION_SECRET || ''
 }
 
-// Emails allowed to auto-provision a user row on first Google sign-in.
-// Anyone else must already exist in the users table (scripts/createuser.ts).
-export function googleAllowedEmails(): string[] {
-  return (process.env.GOOGLE_ALLOWED_EMAILS || '')
-    .split(',')
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean)
+// The single operator's access key — the whole login for this one-person CRM.
+// Enter it once, get a 30-day JWT session. REQUIRED in prod (unset = no login).
+// Generate with openssl rand -hex 32; keep it long so it can't be guessed.
+export function crmAccessKey(): string {
+  return process.env.CRM_ACCESS_KEY || ''
 }
